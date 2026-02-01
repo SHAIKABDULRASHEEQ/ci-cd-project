@@ -38,11 +38,12 @@ pipeline {
             }
         }
 
-        /* 🔥 DEPLOY STAGE ADDED */
+        /* ✅ FIXED DEPLOY STAGE */
         stage("Deploy to Kubernetes") {
             steps {
                 sh '''
-                kubectl apply -f k8s/
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
                 kubectl rollout status deployment/cicd-demo
                 '''
             }
