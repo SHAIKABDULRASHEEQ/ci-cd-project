@@ -1,40 +1,42 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    IMAGE = "shaikabdulrasheeq/cicd-demo:latest"
-  }
-
-  stages {
-
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    environment {
+        IMAGE_NAME = "shaikabdulrasheeq/cicd-demo"
+        DOCKER_CREDS = "dockerhub-creds"
     }
 
-    stage('Build Image') {
-      steps {
-        sh 'docker build -t $IMAGE .'
-      }
-    }
+    stages {
 
-    stage('Docker Login') {
-      steps {
-        withCredentials([usernamePassword(
-          credentialsId: 'dockerhub-creds',
-          usernameVariable: 'DOCKER_USER',
-          passwordVariable: 'DOCKER_PASS'
-        )]) {
-          sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+        stage("Checkout") {
+            steps {
+                checkout scm
+            }
         }
-      }
-    }
 
-    stage('Push Image') {
-      steps {
-        sh 'docker push $IMAGE'
-      }
+        stage("Build Image") {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:latest ."
+            }
+        }
+
+        stage("Docker Login") {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: DOCKER_CREDS,
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                }
+            }
+        }
+
+        stage("Push Image") {
+            steps {
+                sh "docker push ${IMAGE_NAME}:latest"
+            }
+        }
     }
-  }
 }
+
