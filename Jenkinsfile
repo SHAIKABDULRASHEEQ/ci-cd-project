@@ -1,4 +1,4 @@
-pipeline {
+pipeline { 
     agent any
 
     environment {
@@ -37,6 +37,15 @@ pipeline {
                 sh "docker push ${IMAGE_NAME}:latest"
             }
         }
+
+        /* 🔥 DEPLOY STAGE ADDED */
+        stage("Deploy to Kubernetes") {
+            steps {
+                sh '''
+                kubectl apply -f k8s/
+                kubectl rollout status deployment/cicd-demo
+                '''
+            }
+        }
     }
 }
-
